@@ -22,6 +22,14 @@ const createExpenseSchema = expenseSchema.omit({ id: true })
 const ok = <T>(c: any, data: T, status = 200) => c.json({ data }, status)
 const err = (c: any, message: string, status = 400) => c.json({ error: { message } }, status)
 
+
+// Allow updating title and/or amount, but not id
+const updateExpenseSchema = z.object({
+  title: z.string().min(3).max(100).optional(),
+  amount: z.number().int().positive().optional(),
+})
+
+
 export type Expense = z.infer<typeof expenseSchema>
 
 // Router
@@ -55,3 +63,31 @@ export const expensesRoute = new Hono()
     const [removed] = expenses.splice(idx, 1)
     return ok(c, { deleted: removed })
   })
+
+  // PUT /api/expenses/:id → full replace
+expensesRoute.put('/:id{\\d+}', zValidator('json', createExpenseSchema), (c) => {
+  const id = Number(c.req.param('id'))
+  const idx = expenses.findIndex((e) => e.id === id)
+  if (idx === -1) return c.json({ error: 'Not found' }, 404)
+
+  const data = c.req.valid('json')
+  const updated: Expense = { id, ...data }
+  expenses[idx] = updated
+  return c.json({ expense: updated })
+})
+
+// PATCH /api/expenses/:id → partial update
+expensesRoute.patch('/:id{\\d+}', zValidator('json', updateExpenseSchema), (c) => {
+  const id = Number(c.req.param('id'))
+  const idx = expenses.findIndex((e) => e.id === id)
+
+
+  const data = c.req.valid('json')
+  if (Object.keys(data).length === 0) return c.json({ error: "Empty patch" }, 400);
+
+  const current = expenses[idx]
+  if (idx === -1 || !current) return c.json({ error: 'Not found' }, 404)
+  const updated: Expense = { ...current, ...data }
+  expenses[idx] = updated
+  return c.json({ expense: updated })
+})
