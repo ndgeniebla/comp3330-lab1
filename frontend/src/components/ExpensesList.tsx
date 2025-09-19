@@ -5,11 +5,12 @@ export function ExpensesList() {
     queryKey: ['expenses'],
     queryFn: async () => {
       const res = await fetch('http://localhost:3000/api/expenses')
+      console.log(res)
       if (!res.ok) throw new Error('Failed to fetch expenses')
       return res.json() as Promise<{ expenses: { id: number; title: string; amount: number }[] }>
     },
   })
-
+  
   if (isLoading) return <p className="text-sm text-gray-500">Loading…</p>
   if (isError) return <p className="text-sm text-red-600">{(error as Error).message}</p>
 
