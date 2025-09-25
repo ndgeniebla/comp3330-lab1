@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
 
 export function AddExpenseForm() {
   const qc = useQueryClient()
+  const navigate = useNavigate()
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState<number | ''>('')
 
@@ -20,6 +22,7 @@ export function AddExpenseForm() {
       qc.invalidateQueries({ queryKey: ['expenses'] })
       setTitle('')
       setAmount('')
+      navigate({to: "/expenses/"})
     }
   })
 
