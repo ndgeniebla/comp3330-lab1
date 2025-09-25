@@ -4,6 +4,7 @@
     "": {
       "name": "frontend",
       "dependencies": {
+        "@kinde-oss/kinde-auth-react": "^5.6.1",
         "@radix-ui/react-slot": "^1.2.3",
         "@tanstack/react-query": "^5.90.2",
         "@tanstack/react-router": "^1.132.7",
@@ -163,6 +164,12 @@
     "@jridgewell/sourcemap-codec": ["@jridgewell/sourcemap-codec@1.5.5", "", {}, "sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og=="],
 
     "@jridgewell/trace-mapping": ["@jridgewell/trace-mapping@0.3.31", "", { "dependencies": { "@jridgewell/resolve-uri": "^3.1.0", "@jridgewell/sourcemap-codec": "^1.4.14" } }, "sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw=="],
+
+    "@kinde-oss/kinde-auth-react": ["@kinde-oss/kinde-auth-react@5.6.1", "", { "dependencies": { "@kinde/js-utils": "0.22.0" }, "peerDependencies": { "react": "^17 || ^18 || ^19", "react-dom": "^17 || ^18 || ^19" } }, "sha512-aEMiQkdytd9lTjoH/G2Sr9GbiJErHh3X48W53Tx5abe6GseHmQEQAOZhgWuu2kLpPx7BJoR2FnfLWKfCfQd5qQ=="],
+
+    "@kinde/js-utils": ["@kinde/js-utils@0.22.0", "", { "dependencies": { "@kinde/jwt-decoder": "^0.2.0" }, "peerDependencies": { "expo-secure-store": ">=11.0.0" }, "optionalPeers": ["expo-secure-store"] }, "sha512-7tOjrzW8JFEuWTiu+3fnFtaNNhYOBe1KOeGv2hLFDAnJwJ3MmrHyJPwyfq5U2URxmb2FvhEI+tFDy+uUvVD9Vg=="],
+
+    "@kinde/jwt-decoder": ["@kinde/jwt-decoder@0.2.0", "", {}, "sha512-dqtwCmAvywOVLkkUfp4UbqdvVLsK0cvHsJhU3gDY9rgjAdZhGw0vCreBW6j3MFLxbi6cZm7pMU7/O5SJgvN5Rw=="],
 
     "@nodelib/fs.scandir": ["@nodelib/fs.scandir@2.1.5", "", { "dependencies": { "@nodelib/fs.stat": "2.0.5", "run-parallel": "^1.1.9" } }, "sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g=="],
 
