@@ -4,7 +4,7 @@ import { useParams } from '@tanstack/react-router'
 export default function ExpenseDetail() {
   const { id } = useParams({ from: "/expenses/$id" })
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['expenses'],
+    queryKey: ['expense'],
     queryFn: async () => {
       const res = await fetch(`http://localhost:3000/api/expenses/${id}`)
       console.log("res", res)
