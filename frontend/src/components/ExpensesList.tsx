@@ -18,7 +18,7 @@ export function ExpensesList() {
     <ul className="mt-4 space-y-2">
       {data!.expenses.map((e) => (
         <li key={e.id} className="flex items-center justify-between rounded border bg-white p-3 shadow-sm">
-          <span className="font-medium">{e.title}</span>
+          <span className="font-medium text-blue-600 underline"><a href={`/expenses/${e.id}`}>{e.title}</a></span>
           <span className="tabular-nums">${e.amount}</span>
         </li>
       ))}

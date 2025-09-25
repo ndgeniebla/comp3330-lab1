@@ -3,6 +3,9 @@ import { useParams } from '@tanstack/react-router'
 
 export default function ExpenseDetail() {
   const { id } = useParams({ from: "/expenses/$id" })
+  const idCheck = parseInt(id)
+  if (Number(id) !== idCheck) return <p>Page not found</p>
+
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['expense'],
     queryFn: async () => {
@@ -15,7 +18,6 @@ export default function ExpenseDetail() {
   
   if (isLoading) return <p className="text-sm text-gray-500">Loading…</p>
   if (isError) return <p className="text-sm text-red-600">{(error as Error).message}</p>
-  console.log("data", data)
 
   return (
     <ul className="mt-4 space-y-2">
