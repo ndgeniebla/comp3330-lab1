@@ -9,7 +9,7 @@ export default function ExpenseDetail() {
       const res = await fetch(`http://localhost:3000/api/expenses/${id}`)
       console.log("res", res)
       if (!res.ok) throw new Error('Failed to fetch detail of expense')
-      return res.json() as Promise<{ expenses: { id: number; title: string; amount: number }[] }>
+      return res.json() as Promise<{ expense: { id: number; title: string; amount: number } }>
     },
   })
   
@@ -19,12 +19,10 @@ export default function ExpenseDetail() {
 
   return (
     <ul className="mt-4 space-y-2">
-      {data!.expenses.map((e) => (
-        <li key={e.id} className="flex items-center justify-between rounded border bg-white p-3 shadow-sm">
-          <span className="font-medium">{e.title}</span>
-          <span className="tabular-nums">${e.amount}</span>
+        <li key={data!.expense.id} className="flex items-center justify-between rounded border bg-white p-3 shadow-sm">
+          <span className="font-medium">{data!.expense.title}</span>
+          <span className="tabular-nums">${data!.expense.amount}</span>
         </li>
-      ))}
     </ul>
   )
 }
