@@ -4,7 +4,7 @@ import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 import { db, schema } from '../db/client'
 import { eq } from 'drizzle-orm'
-
+import { requireAuth } from '../auth/jwt'
 const { expenses } = schema
 
 const expenseSchema = z.object({
@@ -17,6 +17,15 @@ const updateExpenseSchema = z.object({
   title: z.string().min(3).max(100).optional(),
   amount: z.number().int().positive().optional(),
 })
+
+export const secureRoute = new Hono()
+  .get('/profile', async (c) => {
+    const err = await requireAuth(c)
+    if (err) return err
+    const user = c.get('user')
+    return c.json({ user })
+})
+
 
 export const expensesRoute = new Hono()
   .get('/', async (c) => {
