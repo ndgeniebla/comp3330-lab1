@@ -21,6 +21,11 @@ const routeTree = rootRoute.addChildren([indexRoute, expensesRoute])
 
 export const router = createRouter({ routeTree })
 
+router.update({
+  defaultNotFoundComponent: () => <p>Page not found</p>,
+  defaultErrorComponent: ({ error }) => <p>Error: {(error as Error).message}</p>,
+})
+
 export function AppRouter() {
   return <RouterProvider router={router} />
 }
