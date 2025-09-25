@@ -2,6 +2,7 @@ import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tan
 import ExpenseNew from './routes/expenses.new'
 import Expenses from  './routes/expenses.list'
 import ExpenseDetail from './routes/expenses.detail'
+import HomePage from './routes/home'
 import App from './App'
 
 const rootRoute = createRootRoute({
@@ -11,7 +12,7 @@ const rootRoute = createRootRoute({
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/',
-  component: () => <p>Home Page</p>,
+  component: () => <HomePage />,
 })
 
 const expensesRoute = createRoute({
