@@ -19,7 +19,7 @@ export function Profile() {
     <div className="mt-6 space-y-2">
       <p className="text-sm text-gray-700">Signed in as: {user?.email}</p>
       <button className="rounded bg-black px-3 py-1 text-white" onClick={loadProfile}>Load Protected Profile</button>
-      <pre className="rounded bg-gray-100 p-3 text-xs">{resp}</pre>
+      <pre className="rounded bg-gray-100 p-3 text-xs overflow-x-scroll">{resp}</pre>
     </div>
   )
 }

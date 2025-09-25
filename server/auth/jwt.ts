@@ -12,6 +12,10 @@ export async function requireAuth(c: Context) {
     const auth = c.req.header('authorization') || ''
     const [, token] = auth.split(' ')
     if (!token) return c.json({ error: 'Missing Bearer token' }, 401)
+    console.log("token", token)
+    // console.log("audience", AUDIENCE)
+    // console.log("issuer", ISSUER)
+
 
     const { payload } = await jwtVerify(token, jwks, {
       issuer: ISSUER,
@@ -23,6 +27,7 @@ export async function requireAuth(c: Context) {
     c.set('user', payload)
     return null // means OK, continue
   } catch (err) {
+    //   console.log(err)
     return c.json({ error: 'Invalid or expired token' }, 401)
   }
 }
