@@ -1,4 +1,7 @@
 import { RouterProvider, createRouter, createRootRoute, createRoute } from '@tanstack/react-router'
+import ExpenseNew from './routes/expenses.new'
+import Expenses from  './routes/expenses.list'
+import ExpenseDetail from './routes/expenses.detail'
 import App from './App'
 
 const rootRoute = createRootRoute({
@@ -14,10 +17,22 @@ const indexRoute = createRoute({
 const expensesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/expenses',
-  component: () => <p>Expenses Layout</p>,
+  component: () => <Expenses />,
 })
 
-const routeTree = rootRoute.addChildren([indexRoute, expensesRoute])
+const expensesDetailRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/expenses/$id',
+  component: () => <ExpenseDetail />,
+})
+
+const expensesNewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/expenses/new',
+  component: () => <ExpenseNew />,
+})
+
+const routeTree = rootRoute.addChildren([indexRoute, expensesRoute, expensesNewRoute, expensesDetailRoute])
 
 export const router = createRouter({ routeTree })
 
