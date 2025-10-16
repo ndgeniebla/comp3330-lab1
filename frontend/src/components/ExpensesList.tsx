@@ -87,8 +87,12 @@ export default function ExpensesList() {
       <header className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Expenses</h2>
         <div className="flex items-center gap-3">
-          <button className="rounded border px-3 py-1 text-sm" onClick={() => refetch()} disabled={isFetching}>
-            {isFetching ? "Refreshing…" : "Refresh"}
+          <button
+            className="rounded border px-3 py-1 text-sm disabled:cursor-not-allowed disabled:opacity-40"
+            onClick={() => refetch()}
+            disabled={isFetching}
+          >
+            {isFetching ? 'Refreshing…' : 'Refresh'}
           </button>
         </div>
       </header>
