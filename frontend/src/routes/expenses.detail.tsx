@@ -1,4 +1,3 @@
-// ...existing code...
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import UploadExpenseForm from "../components/UploadExpenseForm";
 
@@ -52,4 +51,3 @@ export default function ExpenseDetailPage({ id }: { id: number }) {
     </section>
   );
 }
-// ...existing code...
