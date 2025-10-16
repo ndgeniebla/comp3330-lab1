@@ -100,9 +100,12 @@ export default function ExpensesList() {
       {deleteError && <p className="mb-3 text-sm text-red-600">{deleteError}</p>}
 
       {items.length === 0 ? (
-        <div className="rounded border bg-background p-6">
-          <p className="text-sm text-muted-foreground">No expenses yet.</p>
-        </div>
+        <div className="rounded border bg-background p-6 text-center">
+          <h3 className="text-lg font-semibold">No expenses yet</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+          Start by adding your first expense using the form above.
+        </p>
+    </div>
       ) : (
         <ul className="space-y-2">
           {items.map((e) => (
