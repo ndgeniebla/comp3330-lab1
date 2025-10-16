@@ -40,28 +40,43 @@ const buildUpdatePayload = (input: UpdateExpenseInput) => {
 }
 
 const withSignedDownloadUrl = async (row: ExpenseRow): Promise<ExpenseRow> => {
-  if (!row.fileUrl) return row
-  if (row.fileUrl.startsWith('http://') || row.fileUrl.startsWith('https://')) {
-    return row
+  const anyRow = row as any;
+
+  // nothing to do
+  if (!row.fileUrl && !anyRow.file_key && !anyRow.fileKey) return row;
+
+  // if already absolute URL, return as-is
+  if (row.fileUrl && (row.fileUrl.startsWith("http://") || row.fileUrl.startsWith("https://"))) {
+    return row;
   }
+
+  // determine stored key (adapt if your DB column differs)
+  const key = anyRow.file_key ?? anyRow.fileKey ?? row.fileUrl;
+  if (!key) return row;
 
   try {
-    const signedUrl = await getSignedUrl(
-      s3,
-      new GetObjectCommand({
-        Bucket: process.env.S3_BUCKET!,
-        Key: row.fileUrl,
-      }),
-      { expiresIn: 3600 },
-    )
-    return { ...row, fileUrl: signedUrl }
+    // try to generate a presigned GET URL
+    const cmd = new GetObjectCommand({
+      Bucket: process.env.S3_BUCKET,
+      Key: key,
+    });
+    const signed = await getSignedUrl(s3, cmd, { expiresIn: 60 * 5 });
+    return { ...row, fileUrl: signed };
   } catch (error) {
-    console.error('Failed to sign download URL', error)
-    return row
+    console.error("Failed to generate signed S3 URL for expense", row.id, error);
+
+    // fallback: construct a public S3 URL so the client gets an absolute link
+    const bucket = process.env.S3_BUCKET;
+    if (bucket) {
+      // naive public URL (works for many regions); adjust if you use a custom domain or different endpoint
+      const fallback = `https://${bucket}.s3.amazonaws.com/${encodeURIComponent(String(key))}`;
+      return { ...row, fileUrl: fallback };
+    }
+
+    // if no bucket configured, clear fileUrl to avoid relative resolution
+    return { ...row, fileUrl: null };
   }
-}
-
-
+};
 
 export const expensesRoute = new Hono()
   .get("/", async (c) => {
@@ -75,12 +90,17 @@ export const expensesRoute = new Hono()
     const id = Number(c.req.param("id"));
     const [row] = await db.select().from(expenses).where(eq(expenses.id, id)).limit(1);
     if (!row) return c.json({ error: "Not found" }, 404);
-    return c.json({ expense: row });
+
+    // Ensure we return a signed S3 URL (if applicable)
+    const expenseWithUrl = await withSignedDownloadUrl(row);
+    return c.json({ expense: expenseWithUrl });
   })
   .post("/", zValidator("json", createExpenseSchema), async (c) => {
     const data = c.req.valid("json");
     const [created] = await db.insert(expenses).values(data).returning();
-    return c.json({ expense: created }, 201);
+    if (!created) return c.json({ error: "Insert failed" }, 500);
+    const createdWithUrl = await withSignedDownloadUrl(created);
+    return c.json({ expense: createdWithUrl }, 201);
   })
   .put("/:id{\\d+}", zValidator("json", createExpenseSchema), async (c) => {
     const id = Number(c.req.param("id"));
@@ -90,7 +110,8 @@ export const expensesRoute = new Hono()
       .where(eq(expenses.id, id))
       .returning();
     if (!updated) return c.json({ error: "Not found" }, 404);
-    return c.json({ expense: updated });
+    const updatedWithUrl = await withSignedDownloadUrl(updated);
+    return c.json({ expense: updatedWithUrl });
   })
   /* .patch("/:id{\\d+}", zValidator("json", updateExpenseSchema), async (c) => {
     const id = Number(c.req.param("id"));
@@ -105,7 +126,6 @@ export const expensesRoute = new Hono()
     const patch = c.req.valid("json") as UpdateExpenseInput;
     if (Object.keys(patch).length === 0) return c.json({ error: "Empty patch" }, 400);
 
-    // Map incoming fields (including fileKey) to actual DB columns
     const updates = buildUpdatePayload(patch);
     if (Object.keys(updates).length === 0) {
       return c.json({ error: "No valid fields to update" }, 400);
@@ -113,7 +133,9 @@ export const expensesRoute = new Hono()
 
     const [updated] = await db.update(expenses).set(updates).where(eq(expenses.id, id)).returning();
     if (!updated) return c.json({ error: "Not found" }, 404);
-    return c.json({ expense: updated });
+
+    const updatedWithUrl = await withSignedDownloadUrl(updated);
+    return c.json({ expense: updatedWithUrl });
   })
   .delete("/:id{\\d+}", async (c) => {
     const id = Number(c.req.param("id"));
