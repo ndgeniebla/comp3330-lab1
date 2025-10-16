@@ -1,5 +1,5 @@
-import { Link, Outlet } from '@tanstack/react-router'
-import { AuthBar } from './components/AuthBar'
+import { Link, Outlet } from "@tanstack/react-router";
+import { AuthBar } from "./components/AuthBar";
 
 export default function App() {
   return (
@@ -7,7 +7,7 @@ export default function App() {
       <div className="mx-auto max-w-4xl p-6">
         <header className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Expenses App</h1>
-          <nav className="flex items-center gap-6 text-sm">
+          <nav className="flex gap-4 text-sm">
             <Link to="/">Home</Link>
             <Link to="/expenses">Expenses</Link>
             <Link to="/expenses/new">New</Link>
@@ -19,5 +19,5 @@ export default function App() {
         </div>
       </div>
     </main>
-  )
+  );
 }

@@ -1,30 +1,36 @@
-import { useQuery } from '@tanstack/react-query'
-import { useParams } from '@tanstack/react-router'
+// /frontend/src/routes/expenses.detail.tsx
+import { useQuery } from "@tanstack/react-query";
 
-export default function ExpenseDetail() {
-  const { id } = useParams({ from: "/expenses/$id" })
-  const idCheck = parseInt(id)
-  if (Number(id) !== idCheck) return <p>Page not found</p>
+type Expense = { id: number; title: string; amount: number };
+const API = "http://localhost:3000/api"; // if you’re using Vite proxy; otherwise "http://localhost:3000/api"
 
+export default function ExpenseDetailPage({ id }: { id: number }) {
+  // useQuery caches by key ['expenses', id]
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['expense'],
+    queryKey: ["expenses", id],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:3000/api/expenses/${id}`)
-      console.log("res", res)
-      if (!res.ok) throw new Error('Failed to fetch detail of expense')
-      return res.json() as Promise<{ expense: { id: number; title: string; amount: number } }>
+      const res = await fetch(`${API}/expenses/${id}`);
+      if (!res.ok) throw new Error(`Failed to fetch expense with id ${id}`);
+      return res.json() as Promise<{ expense: Expense }>;
     },
-  })
-  
-  if (isLoading) return <p className="text-sm text-gray-500">Loading…</p>
-  if (isError) return <p className="text-sm text-red-600">{(error as Error).message}</p>
+  });
+
+  if (isLoading) return <p className="p-6 text-sm text-muted-foreground">Loading…</p>;
+  if (isError) return <p className="p-6 text-sm text-red-600">{(error as Error).message}</p>;
+
+  const item = data?.expense;
+
+  if (!item) {
+    return <p className="p-6 text-sm text-muted-foreground">Expense not found.</p>;
+  }
 
   return (
-    <ul className="mt-4 space-y-2">
-        <li key={data!.expense.id} className="flex items-center justify-between rounded border bg-white p-3 shadow-sm">
-          <span className="font-medium">{data!.expense.title}</span>
-          <span className="tabular-nums">${data!.expense.amount}</span>
-        </li>
-    </ul>
-  )
+    <section className="mx-auto max-w-3xl p-6">
+      <div className="rounded border bg-background text-foreground p-6">
+        <h2 className="text-xl font-semibold">{item.title}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">Amount</p>
+        <p className="text-lg tabular-nums">#{item.amount}</p>
+      </div>
+    </section>
+  );
 }

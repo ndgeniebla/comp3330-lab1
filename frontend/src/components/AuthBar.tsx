@@ -1,18 +1,30 @@
-import { useKindeAuth } from '@kinde-oss/kinde-auth-react'
+// /frontend/src/components/AuthBar.tsx
+import * as React from "react";
 
 export function AuthBar() {
-  const { isAuthenticated, login, logout, user, getToken } = useKindeAuth()
+  const [user, setUser] = React.useState<any>(null);
+
+  React.useEffect(() => {
+    fetch("/api/auth/me", { credentials: "include" })
+      .then((r) => r.json())
+      .then((d) => setUser(d.user))
+      .catch(() => setUser(null));
+  }, []);
 
   return (
     <div className="flex items-center gap-3 text-sm">
-      {isAuthenticated ? (
+      {user ? (
         <>
-          <span className="text-gray-600">{user?.givenName ?? user?.email}</span>
-          <button className="rounded bg-black px-3 py-1 text-white" onClick={() => logout()}>Logout</button>
+          <span className="text-muted-foreground">{user.email ?? user.sub}</span>
+          <a className="rounded bg-primary px-3 py-1 text-primary-foreground" href="/api/auth/logout">
+            Logout
+          </a>
         </>
       ) : (
-        <button className="rounded bg-black px-3 py-1 text-white" onClick={() => login()}>Login</button>
+        <a className="rounded bg-primary px-3 py-1 text-primary-foreground" href="/api/auth/login">
+          Login
+        </a>
       )}
     </div>
-  )
+  );
 }

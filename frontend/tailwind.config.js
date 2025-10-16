@@ -1,13 +1,16 @@
-/** @type {import('tailwindcss').Config} */
+import { fontFamily } from "tailwindcss/defaultTheme";
+
 export default {
-    darkMode: ['class'],
-    content: [
-    './index.html',
-    './src/**/*.{ts,tsx}',
-    './src/components/**/*.{ts,tsx}',
-  ],
+  darkMode: ["class"],
+  content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
   	extend: {
+  		fontFamily: {
+  			sans: [
+  				'var(--font-sans)',
+                    ...fontFamily.sans
+                ]
+  		},
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',
@@ -58,4 +61,4 @@ export default {
   	}
   },
   plugins: [require("tailwindcss-animate")],
-}
+};

@@ -1,4 +1,4 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 export function AppCard() {
   return (
@@ -8,10 +8,8 @@ export function AppCard() {
         <CardDescription>Vite + React + Tailwind + ShadCN is configured.</CardDescription>
       </CardHeader>
       <CardContent>
-        <p className="text-sm text-muted-foreground">
-          Next lab: connect to your backend and render real data.
-        </p>
+        <p className="text-sm text-muted-foreground">Next lab: connect to your backend and render real data.</p>
       </CardContent>
     </Card>
-  )
+  );
 }
