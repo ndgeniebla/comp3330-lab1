@@ -47,7 +47,9 @@ export function AddExpenseForm() {
       setFormError("Could not add expense. Try again.");
     },
     onSettled: () => {
-      qc.invalidateQueries({ queryKey: ["expenses"] });
+      qc.invalidateQueries({ queryKey: ['expenses'] })
+      setTitle('')
+      setAmount('')
     },
     onSuccess: () => {
       // reset fields after successful creation and clear errors
