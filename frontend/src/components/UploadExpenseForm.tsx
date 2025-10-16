@@ -75,11 +75,13 @@ export default function UploadExpenseForm({ expenseId, onSuccess }: Props) {
 
             setMessage('Upload successful');
             setFile(null);
+            setError(null);
             onSuccess?.();
         } catch (err: any) {
-            console.error(err);
+            // log raw error but show a neutral message to the user
+            console.error("Upload error:", err);
             setMessage(null);
-            setError(err?.message ?? 'Upload error');
+            setError('Could not upload receipt. Try again.');
         } finally {
             setUploading(false);
         }

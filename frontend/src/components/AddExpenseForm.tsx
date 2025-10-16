@@ -1,7 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-
-type Expense = { id: number; title: string; amount: number; fileUrl?: string | null };
+import type { Expense } from "../routes/expenses.detail";
 
 export function AddExpenseForm() {
   const qc = useQueryClient();
@@ -42,15 +41,19 @@ export function AddExpenseForm() {
       return { previous };
     },
     onError: (_err, _newItem, ctx: any) => {
+      console.error("Add expense error:", _err);
       if (ctx?.previous) qc.setQueryData(["expenses"], ctx.previous);
+      // show neutral message to the user (no raw API text)
+      setFormError("Could not add expense. Try again.");
     },
     onSettled: () => {
       qc.invalidateQueries({ queryKey: ["expenses"] });
     },
     onSuccess: () => {
-      // reset fields after successful creation
+      // reset fields after successful creation and clear errors
       setTitle("");
       setAmount("");
+      setFormError(null);
     },
   });
 
@@ -109,7 +112,8 @@ export function AddExpenseForm() {
       {/* Errors */}
       {formError && <p className="w-full text-sm text-red-600">{formError}</p>}
       {mutation.isError && (
-        <p className="w-full text-sm text-red-600">{(mutation.error as Error)?.message ?? "Could not add expense."}</p>
+        // neutral text for API error (server details logged to console)
+        <p className="w-full text-sm text-red-600">Could not add expense. Try again.</p>
       )}
     </form>
   );

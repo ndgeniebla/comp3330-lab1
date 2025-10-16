@@ -7,7 +7,8 @@ const API = "/api";
 
 export default function ExpensesList() {
   const qc = useQueryClient();
-  const [deleteError, setDeleteError] = useState<string | null>(null);
+  // track per-row delete errors and which id is currently deleting
+  const [deleteErrors, setDeleteErrors] = useState<Record<number, string | null>>({});
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
   const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
@@ -37,8 +38,14 @@ export default function ExpensesList() {
       return id;
     },
     onMutate: async (id: number) => {
-      setDeleteError(null);
+      // clear any previous error for this id and mark deleting
+      setDeleteErrors((s) => {
+        const copy = { ...s };
+        delete copy[id];
+        return copy;
+      });
       setDeletingId(id);
+
       await qc.cancelQueries({ queryKey: ["expenses"] });
       const previous = qc.getQueryData<{ expenses: Expense[] }>(["expenses"]);
       if (previous) {
@@ -48,9 +55,11 @@ export default function ExpensesList() {
       }
       return { previous };
     },
-    onError: (_err, _id, ctx: any) => {
+    onError: (_err, id, ctx: any) => {
+      // restore previous list
       if (ctx?.previous) qc.setQueryData(["expenses"], ctx.previous);
-      setDeleteError("Could not remove the expense.");
+      // show a neutral inline error next to the offending button
+      setDeleteErrors((s) => ({ ...s, [id as number]: "Could not remove expense. Try again." }));
     },
     onSettled: () => {
       setDeletingId(null);
@@ -67,14 +76,17 @@ export default function ExpensesList() {
         </svg>
         Loading expenses…
       </div>
-    )
+    );
   }
 
   if (isError)
     return (
-      <div className="p-6">
-        <p className="text-sm text-red-600">Failed to fetch: {(error as Error).message}</p>
-        <button className="mt-3 rounded border px-3 py-1" onClick={() => refetch()} disabled={isFetching}>
+      <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+        <p>Could not load expenses. Please try again.</p>
+        <button
+          className="mt-2 rounded border border-red-300 px-3 py-1 text-xs text-red-700"
+          onClick={() => refetch()}
+        >
           Retry
         </button>
       </div>
@@ -92,20 +104,18 @@ export default function ExpensesList() {
             onClick={() => refetch()}
             disabled={isFetching}
           >
-            {isFetching ? 'Refreshing…' : 'Refresh'}
+            {isFetching ? "Refreshing…" : "Refresh"}
           </button>
         </div>
       </header>
 
-      {deleteError && <p className="mb-3 text-sm text-red-600">{deleteError}</p>}
+      {/* global (non-row) messages could go here if needed */}
 
       {items.length === 0 ? (
         <div className="rounded border bg-background p-6 text-center">
           <h3 className="text-lg font-semibold">No expenses yet</h3>
-          <p className="mt-2 text-sm text-muted-foreground">
-          Start by adding your first expense using the form above.
-        </p>
-    </div>
+          <p className="mt-2 text-sm text-muted-foreground">Start by adding your first expense.</p>
+        </div>
       ) : (
         <ul className="space-y-2">
           {items.map((e) => (
@@ -131,22 +141,31 @@ export default function ExpensesList() {
               <div className="flex items-center gap-3">
                 <span className="tabular-nums">#{e.amount}</span>
 
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (!confirm("Remove this expense?")) return;
-                    deleteExpense.mutate(e.id);
-                  }}
-                  disabled={deletingId === e.id}
-                  title="Delete expense"
-                  aria-label={`Delete expense ${e.title}`}
-                  className={
-                    "text-sm text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md border border-red-100 " +
-                    "disabled:cursor-not-allowed disabled:opacity-50"
-                  }
-                >
-                  {deletingId === e.id ? "Removing…" : "Delete"}
-                </button>
+                <div className="flex flex-col items-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!confirm("Remove this expense?")) return;
+                      deleteExpense.mutate(e.id);
+                    }}
+                    disabled={deletingId === e.id}
+                    title="Delete expense"
+                    aria-label={`Delete expense ${e.title}`}
+                    className={
+                      "text-sm text-red-700 bg-red-50 hover:bg-red-100 px-2 py-1 rounded-md border border-red-100 " +
+                      "disabled:cursor-not-allowed disabled:opacity-50"
+                    }
+                  >
+                    {deletingId === e.id ? "Removing…" : "Delete"}
+                  </button>
+
+                  {/* per-row neutral error message */}
+                  {deleteErrors[e.id] && (
+                    <p className="mt-1 text-xs text-red-600" role="alert">
+                      {deleteErrors[e.id]}
+                    </p>
+                  )}
+                </div>
               </div>
             </li>
           ))}
