@@ -92,11 +92,26 @@ export const expensesRoute = new Hono()
     if (!updated) return c.json({ error: "Not found" }, 404);
     return c.json({ expense: updated });
   })
-  .patch("/:id{\\d+}", zValidator("json", updateExpenseSchema), async (c) => {
+  /* .patch("/:id{\\d+}", zValidator("json", updateExpenseSchema), async (c) => {
     const id = Number(c.req.param("id"));
     const patch = c.req.valid("json");
     if (Object.keys(patch).length === 0) return c.json({ error: "Empty patch" }, 400);
     const [updated] = await db.update(expenses).set(patch).where(eq(expenses.id, id)).returning();
+    if (!updated) return c.json({ error: "Not found" }, 404);
+    return c.json({ expense: updated });
+  }) */
+ .patch("/:id{\\d+}", zValidator("json", updateExpenseSchema), async (c) => {
+    const id = Number(c.req.param("id"));
+    const patch = c.req.valid("json") as UpdateExpenseInput;
+    if (Object.keys(patch).length === 0) return c.json({ error: "Empty patch" }, 400);
+
+    // Map incoming fields (including fileKey) to actual DB columns
+    const updates = buildUpdatePayload(patch);
+    if (Object.keys(updates).length === 0) {
+      return c.json({ error: "No valid fields to update" }, 400);
+    }
+
+    const [updated] = await db.update(expenses).set(updates).where(eq(expenses.id, id)).returning();
     if (!updated) return c.json({ error: "Not found" }, 404);
     return c.json({ expense: updated });
   })

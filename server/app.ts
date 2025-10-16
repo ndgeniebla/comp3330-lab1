@@ -39,4 +39,6 @@ app.get("/api/test", (c) => c.json({ message: "test" }));
 app.route('/api/auth', authRoute)
 app.route('/api/secure', secureRoute)
 app.route("/api/expenses", expensesRoute);
+
+// lab 10
 app.route('/api/upload', uploadRoute)
