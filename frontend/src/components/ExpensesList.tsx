@@ -11,7 +11,7 @@ export default function ExpensesList() {
   const [deleteErrors, setDeleteErrors] = useState<Record<number, string | null>>({});
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useQuery({
+  const { data, isLoading, isError, refetch, isFetching } = useQuery({
     queryKey: ["expenses"],
     queryFn: async () => {
       const res = await fetch(`${API}/expenses`, { credentials: "include" });
